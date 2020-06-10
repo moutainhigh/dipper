@@ -1,0 +1,34 @@
+pocket:
+  datasource:
+    serverId: 103
+    node:
+      - url: jdbc:mysql://127.0.0.1:3306/authentication?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=UTF-8
+        nodeName: mysql-01
+        driverName: com.mysql.cj.jdbc.Driver
+        showSql: true
+        user: root
+        password: root
+        poolMiniSize: 5
+        poolMaxSize: 50
+        timeout: 1000
+        session: biscuits,authentication
+
+biscuits:
+  token:
+    secret: shinow
+    expiration: 600000
+    refreshTime: 300000
+    tokenHead: Bearer
+  filter:
+    turnOn: false
+#rocketmq:
+#  name-server: 127.0.0.1:9876
+#  producer:
+#    group: my-group
+#    enable-msg-trace: true
+#    customized-trace-topic: my-trace-topic
+server:
+  port: 8080
+spring:
+  application:
+    name: dipper

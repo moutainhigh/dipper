@@ -1,0 +1,73 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: "jacoco"
+apply plugin: 'build-dashboard'
+apply plugin: 'maven-publish'
+
+group = 'com.github.leyan95'
+version = '0.1.0.PRE'
+sourceCompatibility = 1.8
+
+compileJava {
+    options.encoding = 'UTF-8'
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'dipper',
+                'Implementation-Version': version
+    }
+
+    exclude "org/hv/dipper/AuthenticationApplication.class"
+    exclude "org/hv/dipper/adapters/api"
+    exclude "org/hv/dipper/adapters/web"
+    exclude "application*.yml"
+}
+
+javadoc {
+    options.encoding = 'UTF-8'
+}
+
+test {
+    exclude '*'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            pom.withXml {
+                asNode().remove(asNode().get("dependencies"))
+            }
+        }
+    }
+    repositories {
+        repositories {
+            maven {
+                credentials {
+                    username "${upload_username}"
+                    password "${upload_password}"
+                }
+                url "${upload_url}"
+            }
+        }
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+compileJava.dependsOn(processResources)
+
+dependencies {
+    implementation('org.springframework.boot:spring-boot-starter-web:2.1.1.RELEASE')
+    implementation ('com.github.leyan95:biscuits:0.2.1.PRE')
+    implementation('mysql:mysql-connector-java:8.0.13')
+    testImplementation('org.springframework.boot:spring-boot-starter-test:2.1.1.RELEASE')
+}
