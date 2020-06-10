@@ -1,6 +1,7 @@
 package org.hv.dipper.domain.port.out;
 
 import org.hv.dipper.domain.aggregation.AuthorityView;
+import org.hv.dipper.domain.aggregation.BundleView;
 import org.hv.dipper.domain.aggregation.UserAuthorityView;
 import org.hv.biscuits.spine.model.Department;
 import org.hv.biscuits.spine.model.User;
@@ -20,6 +21,14 @@ public interface AuthorityLoadPort {
      * @throws SQLException sql e
      */
     List<AuthorityView> loadAllAuthorityView() throws SQLException;
+
+    /**
+     * 加载所有不需要权限就能访问的bundle
+     *
+     * @return bundleId list
+     * @throws SQLException sql e
+     */
+    List<BundleView> loadFreeBundle() throws SQLException;
 
     /**
      * 查询用户

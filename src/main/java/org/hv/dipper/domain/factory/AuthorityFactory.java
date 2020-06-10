@@ -1,7 +1,11 @@
 package org.hv.dipper.domain.factory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -16,6 +20,7 @@ public enum AuthorityFactory {
      * serviceId->bundleId->actionId->authId
      */
     private final Map<String, Map<String, Map<String, String>>> authTree = new ConcurrentHashMap<>();
+    private final Map<String, Set<String>> freeBundleTree = new HashMap<>(16);
 
     /**
      * 填充/修改 权限映射结构
@@ -33,6 +38,29 @@ public enum AuthorityFactory {
             Map<String, String> heapActionAuthBranch = heapBundleToActionAuthBranch.get(bundleId);
             heapActionAuthBranch.put(actionId, authId);
         }
+    }
+
+    /**
+     * 设置无需权限就可以访问的bundle
+     *
+     * @param serverId server id
+     * @param bundleId bundle id
+     */
+    public void putFreeBundle(String serverId, String bundleId) {
+        this.freeBundleTree.putIfAbsent(serverId, new TreeSet<>());
+        Set<String> heapFreeBundles = this.freeBundleTree.get(serverId);
+        heapFreeBundles.add(bundleId);
+    }
+
+    /**
+     * 判断访问该bundle时是否需要相应的权限
+     *
+     * @param serverId server id
+     * @param bundleId bundle id
+     * @return 是否可自由访问
+     */
+    public boolean isFree(String serverId, String bundleId) {
+        return this.freeBundleTree.getOrDefault(serverId, new TreeSet<>()).contains(bundleId);
     }
 
     /**

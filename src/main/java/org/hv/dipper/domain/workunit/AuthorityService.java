@@ -1,6 +1,7 @@
 package org.hv.dipper.domain.workunit;
 
 import org.hv.dipper.config.TokenConfig;
+import org.hv.dipper.domain.aggregation.BundleView;
 import org.hv.dipper.domain.factory.AuthorityFactory;
 import org.hv.dipper.domain.factory.SessionFactory;
 import org.hv.dipper.domain.port.out.AuthorityLoadPort;
@@ -33,6 +34,7 @@ import java.util.Map;
 public class AuthorityService extends AbstractService implements AdjustAuthority, AuthorityCheck, CommandLineRunner {
     private final AuthorityLoadPort authorityLoadPort;
     private final TokenConfig tokenConfig;
+    private final AuthorityFactory authorityFactory = AuthorityFactory.INSTANCE;
 
     public AuthorityService(AuthorityLoadPort authorityLoadPort, TokenConfig tokenConfig) {
         this.authorityLoadPort = authorityLoadPort;
@@ -46,7 +48,7 @@ public class AuthorityService extends AbstractService implements AdjustAuthority
 
     @Override
     public void putAuth(String serviceId, String bundleId, String actionId, String authId) throws NullPointerException {
-        String heapAuthId = AuthorityFactory.INSTANCE.getAuthId(serviceId, bundleId, actionId);
+        String heapAuthId = authorityFactory.getAuthId(serviceId, bundleId, actionId);
         if (heapAuthId == null || heapAuthId.equals(authId)) {
             throw new IllegalArgumentException("非法操作");
         } else {
@@ -59,7 +61,11 @@ public class AuthorityService extends AbstractService implements AdjustAuthority
     public void refreshHeapAuth() throws SQLException {
         List<AuthorityView> authorityViews = authorityLoadPort.loadAllAuthorityView();
         for (AuthorityView authorityView : authorityViews) {
-            AuthorityFactory.INSTANCE.putActionAuthBranch(authorityView.getServiceId(), authorityView.getBundleId(), authorityView.getActionId(), authorityView.getAuthorityId());
+            authorityFactory.putActionAuthBranch(authorityView.getServiceId(), authorityView.getBundleId(), authorityView.getActionId(), authorityView.getAuthorityId());
+        }
+        List<BundleView> bundleViews = authorityLoadPort.loadFreeBundle();
+        for (BundleView bundleView : bundleViews) {
+            authorityFactory.putFreeBundle(bundleView.getServiceId(), bundleView.getBundleId());
         }
     }
 
@@ -101,8 +107,8 @@ public class AuthorityService extends AbstractService implements AdjustAuthority
             result.put("avatar", userView.getAvatar());
             result.put("name", userView.getName());
             result.put("businessDepartmentName", userView.getBusinessDepartmentName());
-            String authorityId = AuthorityFactory.INSTANCE.getAuthId(serviceId, bundleId, actionId);
-            if (authorityId == null) {
+            String authorityId = authorityFactory.getAuthId(serviceId, bundleId, actionId);
+            if (authorityFactory.isFree(serviceId, bundleId) || authorityId == null) {
                 result.put("allowed", true);
             } else {
                 boolean allowed;
@@ -129,6 +135,6 @@ public class AuthorityService extends AbstractService implements AdjustAuthority
 
     @Override
     public boolean freeAction(String serviceId, String bundleId, String actionId) {
-        return AuthorityFactory.INSTANCE.getAuthId(serviceId, bundleId, actionId) == null;
+        return authorityFactory.isFree(serviceId.toUpperCase(), bundleId) || authorityFactory.getAuthId(serviceId.toUpperCase(), bundleId, actionId) == null;
     }
 }

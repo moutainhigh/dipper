@@ -1,5 +1,6 @@
 package org.hv.dipper.adapters.persistence;
 
+import org.hv.dipper.domain.aggregation.BundleView;
 import org.hv.dipper.domain.port.out.AuthorityLoadPort;
 import org.hv.dipper.domain.aggregation.AuthorityView;
 import org.hv.dipper.domain.aggregation.UserAuthorityView;
@@ -26,11 +27,15 @@ public class AuthorityLoad extends AbstractRepository implements AuthorityLoadPo
                 "    T1.SERVER_ID as serviceId, " +
                 "    T1.BUNDLE_ID as bundleId, " +
                 "    T1.ACTION_ID as actionId, " +
-                "    T3.ID as authorityId " +
-                "FROM " +
-                "    T_MAPPER T1 " +
-                "    LEFT JOIN T_AUTH_MAPPER T2 ON T1.UUID = T2.MAPPER_UUID " +
-                "    LEFT JOIN T_AUTHORITY T3 ON T2.AUTH_UUID = T3.UUID", AuthorityView.class);
+                "    T1.AUTH_ID as authorityId " +
+                "FROM T_MAPPER T1 ", AuthorityView.class);
+        return sqlQuery.list();
+    }
+
+    @Override
+    public List<BundleView> loadFreeBundle() throws SQLException {
+        SQLQuery sqlQuery = this.getSession().createSQLQuery("SELECT T.SERVER_ID as serviceId, T.BUNDLE_ID as bundleId FROM T_BUNDLE T WHERE T.WITH_AUTH = 0",
+                BundleView.class);
         return sqlQuery.list();
     }
 
