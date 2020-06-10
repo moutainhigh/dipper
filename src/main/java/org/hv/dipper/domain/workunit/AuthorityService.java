@@ -111,16 +111,6 @@ public class AuthorityService extends AbstractService implements AdjustAuthority
                         .getOrDefault(departmentUuid, new HashMap<>(0))
                         .getOrDefault(serviceId, new ArrayList<>())
                         .contains(authorityId);
-                /*if (departmentUuid == null) {
-                    allowed = userView.getServiceDepartmentAuthorityIds().getOrDefault(serviceId, new HashMap<>(0)).values().stream()
-                            .flatMap(Collection::stream).distinct().collect(Collectors.toList())
-                            .contains(authorityId);
-                } else {
-                    allowed = userView.getDepartmentServiceAuthorityIds()
-                            .getOrDefault(departmentUuid, new HashMap<>(0))
-                            .getOrDefault(serviceId, new ArrayList<>())
-                            .contains(authorityId);
-                }*/
                 result.put("allowed", allowed);
                 result.put("errorMessage", allowed ? "通过" : String.format("没有权限访问 /%s/%s/%s", serviceId.toLowerCase(), bundleId, actionId));
             }
@@ -135,5 +125,10 @@ public class AuthorityService extends AbstractService implements AdjustAuthority
             return session.getUserView();
         }
         return null;
+    }
+
+    @Override
+    public boolean freeAction(String serviceId, String bundleId, String actionId) {
+        return AuthorityFactory.INSTANCE.getAuthId(serviceId, bundleId, actionId) == null;
     }
 }

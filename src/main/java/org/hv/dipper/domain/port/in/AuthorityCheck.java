@@ -53,4 +53,14 @@ public interface AuthorityCheck {
      * @return 用户信息
      */
     UserView parseUserView(String token);
+
+    /**
+     * 判断指定action是否不需要权限
+     *
+     * @param serviceId 服务
+     * @param bundleId  bundle
+     * @param actionId  action
+     * @return 是否不需要权限
+     */
+    boolean freeAction(String serviceId, String bundleId, String actionId);
 }

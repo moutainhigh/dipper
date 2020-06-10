@@ -77,12 +77,16 @@ public class TokenFilter implements Filter {
         }
         String token = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (token == null || !token.startsWith(this.tokenConfig.getTokenHead())) {
+            if (authorityCheck.freeAction(serverId, bundleId, actionId)) {
+                freeRequest(req, res, chain, request, response);
+                return;
+            }
             response.setStatus(HttpStatus.SC_UNAUTHORIZED);
             Body responseBody = Body.warning().reLogin().message("Missing or invalid Authorization header");
             this.reLogin(response, responseBody);
             return;
         }
-        this.authorityCheck.check(this.serverId, bundleId, actionId, token.replace(token, ""));
+        this.authorityCheck.check(this.serverId, bundleId, actionId, token.replace(tokenConfig.getTokenHead(), ""));
         chain.doFilter(req, res);
     }
 
