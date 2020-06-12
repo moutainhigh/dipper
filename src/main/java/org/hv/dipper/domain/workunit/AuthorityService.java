@@ -106,6 +106,9 @@ public class AuthorityService extends AbstractService implements AdjustAuthority
             UserView userView = session.getUserView();
             result.put("avatar", userView.getAvatar());
             result.put("name", userView.getName());
+            result.put("departmentUuid", userView.getDepartmentUuid());
+            result.put("departmentName", userView.getDepartmentName());
+            result.put("businessDepartmentUuid", userView.getBusinessDepartmentUuid());
             result.put("businessDepartmentName", userView.getBusinessDepartmentName());
             String authorityId = authorityFactory.getAuthId(serviceId, bundleId, actionId);
             if (authorityFactory.isFree(serviceId, bundleId) || authorityId == null) {

@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -83,10 +84,26 @@ public class TokenFilter implements Filter {
             }
             response.setStatus(HttpStatus.SC_UNAUTHORIZED);
             Body responseBody = Body.warning().reLogin().message("Missing or invalid Authorization header");
-            this.reLogin(response, responseBody);
+            this.refuse(response, responseBody);
             return;
         }
-        this.authorityCheck.check(this.serverId, bundleId, actionId, token.replace(tokenConfig.getTokenHead(), ""));
+        Map<String, Object> checkResult = this.authorityCheck.check(this.serverId, bundleId, actionId, token.replace(tokenConfig.getTokenHead(), ""));
+        Boolean expired = (Boolean) checkResult.get("expired");
+        if (expired) {
+            this.refuse(response, Body.warning().reLogin().message((String) checkResult.get("errorMessage")));
+            return;
+        }
+        Boolean allowed = (Boolean) checkResult.get("allowed");
+        if (!allowed) {
+            this.refuse(response, Body.warning().message((String) checkResult.get("errorMessage")));
+            return;
+        }
+        req.setAttribute("avatar", checkResult.get("avatar"));
+        req.setAttribute("userName", checkResult.get("avatar"));
+        req.setAttribute("departmentUuid", checkResult.get("departmentUuid"));
+        req.setAttribute("departmentName", checkResult.get("departmentName"));
+        req.setAttribute("businessDepartmentUuid", checkResult.get("businessDepartmentUuid"));
+        req.setAttribute("businessDepartmentName", checkResult.get("businessDepartmentName"));
         chain.doFilter(req, res);
     }
 
@@ -112,14 +129,17 @@ public class TokenFilter implements Filter {
             UserView userView = this.authorityCheck.parseUserView(token.replace(tokenHead, ""));
             if (userView != null) {
                 request.setAttribute("avatar", userView.getAvatar());
+                request.setAttribute("userName", userView.getName());
                 request.setAttribute("departmentUuid", userView.getDepartmentUuid());
+                request.setAttribute("departmentName", userView.getDepartmentName());
                 request.setAttribute("businessDepartmentUuid", userView.getBusinessDepartmentUuid());
+                request.setAttribute("businessDepartmentName", userView.getBusinessDepartmentName());
             }
         }
         chain.doFilter(req, res);
     }
 
-    private void reLogin(HttpServletResponse response, Body responseBody) throws IOException {
+    private void refuse(HttpServletResponse response, Body responseBody) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
