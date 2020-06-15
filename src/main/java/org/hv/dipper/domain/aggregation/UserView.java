@@ -104,7 +104,7 @@ public class UserView implements Serializable {
         for (Map.Entry<String, Map<String, List<UserAuthorityView>>> stringMapEntry : this.departmentServiceUserAuthorityViewMap.entrySet()) {
             Map<String, List<String>> serviceAuthorityIdsMap = new HashMap<>(stringMapEntry.getValue().size() * 4 / 3 + 1);
             for (Map.Entry<String, List<UserAuthorityView>> stringListEntry : stringMapEntry.getValue().entrySet()) {
-                serviceAuthorityIdsMap.put(stringListEntry.getKey(), stringListEntry.getValue().stream().map(UserAuthorityView::getBundleId).collect(Collectors.toList()));
+                serviceAuthorityIdsMap.put(stringListEntry.getKey(), stringListEntry.getValue().stream().map(UserAuthorityView::getBundleId).distinct().collect(Collectors.toList()));
             }
             result.put(stringMapEntry.getKey(), serviceAuthorityIdsMap);
         }
@@ -122,7 +122,7 @@ public class UserView implements Serializable {
         for (Map.Entry<String, Map<String, List<UserAuthorityView>>> stringMapEntry : this.serviceDepartmentUserAuthorityViewMap.entrySet()) {
             Map<String, List<String>> serviceAuthorityIdsMap = new HashMap<>(stringMapEntry.getValue().size() * 4 / 3 + 1);
             for (Map.Entry<String, List<UserAuthorityView>> stringListEntry : stringMapEntry.getValue().entrySet()) {
-                serviceAuthorityIdsMap.put(stringListEntry.getKey(), stringListEntry.getValue().stream().map(UserAuthorityView::getBundleId).collect(Collectors.toList()));
+                serviceAuthorityIdsMap.put(stringListEntry.getKey(), stringListEntry.getValue().stream().map(UserAuthorityView::getBundleId).distinct().collect(Collectors.toList()));
             }
             result.put(stringMapEntry.getKey(), serviceAuthorityIdsMap);
         }
@@ -134,7 +134,7 @@ public class UserView implements Serializable {
      */
     public List<String> getBundleIds() {
         return this.departmentServiceUserAuthorityViewMap.getOrDefault(this.businessDepartmentUuid, new HashMap<>(0)).values().stream()
-                .flatMap(Collection::stream).map(UserAuthorityView::getBundleId).collect(Collectors.toList());
+                .flatMap(Collection::stream).map(UserAuthorityView::getBundleId).distinct().collect(Collectors.toList());
     }
 
     /**
@@ -142,7 +142,7 @@ public class UserView implements Serializable {
      */
     public List<String> getAuthIds() {
         return this.departmentServiceUserAuthorityViewMap.getOrDefault(this.businessDepartmentUuid, new HashMap<>(0)).values().stream()
-                .flatMap(Collection::stream).map(UserAuthorityView::getBundleId).collect(Collectors.toList());
+                .flatMap(Collection::stream).map(UserAuthorityView::getAuthorityId).collect(Collectors.toList());
     }
 
     public UserView setBusinessDepartmentUuid(String businessDepartmentUuid) {
