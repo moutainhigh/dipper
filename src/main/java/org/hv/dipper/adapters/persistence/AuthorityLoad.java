@@ -24,7 +24,7 @@ public class AuthorityLoad extends AbstractRepository implements AuthorityLoadPo
     @Override
     public List<AuthorityView> loadAllAuthorityView() throws SQLException {
         SQLQuery sqlQuery = this.getSession().createSQLQuery("SELECT " +
-                "    T1.SERVER_ID as serviceId, " +
+                "    T1.SERVICE_ID as serviceId, " +
                 "    T1.BUNDLE_ID as bundleId, " +
                 "    T1.ACTION_ID as actionId, " +
                 "    T1.AUTH_ID as authorityId " +
@@ -34,7 +34,7 @@ public class AuthorityLoad extends AbstractRepository implements AuthorityLoadPo
 
     @Override
     public List<BundleView> loadFreeBundle() throws SQLException {
-        SQLQuery sqlQuery = this.getSession().createSQLQuery("SELECT T.SERVER_ID as serviceId, T.BUNDLE_ID as bundleId FROM T_BUNDLE T WHERE T.WITH_AUTH = 0",
+        SQLQuery sqlQuery = this.getSession().createSQLQuery("SELECT T.SERVICE_ID as serviceId, T.BUNDLE_ID as bundleId FROM T_BUNDLE T WHERE T.WITH_AUTH = 0",
                 BundleView.class);
         return sqlQuery.list();
     }
@@ -51,7 +51,7 @@ public class AuthorityLoad extends AbstractRepository implements AuthorityLoadPo
     public List<UserAuthorityView> loadAuthorityViewByUserUuid(String userUuid) throws SQLException {
         SQLQuery sqlQuery = this.getSession().createSQLQuery("SELECT DISTINCT    " +
                 " T2.DEPARTMENT_UUID departmentUuid,    " +
-                " T0.SERVER_ID serviceId,    " +
+                " T0.SERVICE_ID serviceId,    " +
                 " T0.BUNDLE_ID bundleId,    " +
                 " T0.ID authorityId     " +
                 "FROM    " +

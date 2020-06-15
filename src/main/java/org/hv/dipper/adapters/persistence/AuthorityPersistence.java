@@ -16,9 +16,9 @@ import java.sql.SQLException;
 @Component
 public class AuthorityPersistence extends AbstractRepository implements AuthorityPersistencePort {
     @Override
-    public void updateAuthForAction(String serverId, String bundleId, String actionId, String authId) throws SQLException {
+    public void updateAuthForAction(String serviceId, String bundleId, String actionId, String authId) throws SQLException {
         Criteria criteria = this.getSession().createCriteria(Mapper.class);
-        criteria.add(Restrictions.equ("serverId", serverId))
+        criteria.add(Restrictions.equ("serviceId", serviceId))
                 .add(Restrictions.equ("bundleId", bundleId))
                 .add(Restrictions.equ("actionId", actionId))
                 .add(Modern.set("authId", authId))

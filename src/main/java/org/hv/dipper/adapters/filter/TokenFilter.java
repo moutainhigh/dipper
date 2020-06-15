@@ -35,7 +35,7 @@ import java.util.Set;
 public class TokenFilter implements Filter {
     private final static String OPTIONS = "OPTIONS";
     @Value("${spring.application.name}")
-    private String serverId;
+    private String serviceId;
     private final FilterPathConfig filterPathConfig;
     private final TokenConfig tokenConfig;
     private final Set<String> excludeUrlPatterns = new LinkedHashSet<>();
@@ -78,7 +78,7 @@ public class TokenFilter implements Filter {
         }
         String token = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (token == null || !token.startsWith(this.tokenConfig.getTokenHead())) {
-            if (authorityCheck.freeAction(serverId, bundleId, actionId)) {
+            if (authorityCheck.freeAction(serviceId, bundleId, actionId)) {
                 freeRequest(req, res, chain, request, response);
                 return;
             }
@@ -87,7 +87,7 @@ public class TokenFilter implements Filter {
             this.refuse(response, responseBody);
             return;
         }
-        Map<String, Object> checkResult = this.authorityCheck.check(this.serverId, bundleId, actionId, token.replace(tokenConfig.getTokenHead(), ""));
+        Map<String, Object> checkResult = this.authorityCheck.check(this.serviceId, bundleId, actionId, token.replace(tokenConfig.getTokenHead(), ""));
         Boolean expired = (Boolean) checkResult.get("expired");
         if (expired) {
             this.refuse(response, Body.warning().reLogin().message((String) checkResult.get("errorMessage")));
