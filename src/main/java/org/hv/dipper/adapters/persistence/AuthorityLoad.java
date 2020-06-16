@@ -60,7 +60,7 @@ public class AuthorityLoad extends AbstractRepository implements AuthorityLoadPo
                 " LEFT JOIN T_ROLE T2 ON T1.ROLE_UUID = T2.UUID    " +
                 " LEFT JOIN T_USER_ROLE T3 ON T2.UUID = T3.ROLE_UUID " +
                 "WHERE " +
-                "    t3.USER_UUID = :USER_UUID", UserAuthorityView.class);
+                "    T3.USER_UUID = :USER_UUID AND T0.BUNDLE_ID IS NOT NULL ", UserAuthorityView.class);
         sqlQuery.setParameter("USER_UUID", userUuid);
         return sqlQuery.list();
     }

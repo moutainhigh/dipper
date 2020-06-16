@@ -102,12 +102,13 @@ public class UserView implements Serializable {
     public Map<String, Map<String, List<String>>> getDepartmentServiceBundleIds() {
         Map<String, Map<String, List<String>>> result = new HashMap<>(this.departmentServiceUserAuthorityViewMap.size() * 4 / 3 + 1);
         for (Map.Entry<String, Map<String, List<UserAuthorityView>>> stringMapEntry : this.departmentServiceUserAuthorityViewMap.entrySet()) {
-            Map<String, List<String>> serviceAuthorityIdsMap = new HashMap<>(stringMapEntry.getValue().size() * 4 / 3 + 1);
+            Map<String, List<String>> serviceBundleIdsMap = new HashMap<>(stringMapEntry.getValue().size() * 4 / 3 + 1);
             for (Map.Entry<String, List<UserAuthorityView>> stringListEntry : stringMapEntry.getValue().entrySet()) {
-                serviceAuthorityIdsMap.put(stringListEntry.getKey(), stringListEntry.getValue().stream().map(UserAuthorityView::getBundleId).distinct().collect(Collectors.toList()));
+                serviceBundleIdsMap.put(stringListEntry.getKey(), stringListEntry.getValue().stream().map(UserAuthorityView::getBundleId).distinct().collect(Collectors.toList()));
             }
-            result.put(stringMapEntry.getKey(), serviceAuthorityIdsMap);
+            result.put(stringMapEntry.getKey(), serviceBundleIdsMap);
         }
+        // TODO Free Bundle Collection
         return result;
     }
 
@@ -120,11 +121,11 @@ public class UserView implements Serializable {
     public Map<String, Map<String, List<String>>> getServiceDepartmentBundleIds() {
         Map<String, Map<String, List<String>>> result = new HashMap<>(this.serviceDepartmentUserAuthorityViewMap.size() * 4 / 3 + 1);
         for (Map.Entry<String, Map<String, List<UserAuthorityView>>> stringMapEntry : this.serviceDepartmentUserAuthorityViewMap.entrySet()) {
-            Map<String, List<String>> serviceAuthorityIdsMap = new HashMap<>(stringMapEntry.getValue().size() * 4 / 3 + 1);
+            Map<String, List<String>> serviceBundleIdsMap = new HashMap<>(stringMapEntry.getValue().size() * 4 / 3 + 1);
             for (Map.Entry<String, List<UserAuthorityView>> stringListEntry : stringMapEntry.getValue().entrySet()) {
-                serviceAuthorityIdsMap.put(stringListEntry.getKey(), stringListEntry.getValue().stream().map(UserAuthorityView::getBundleId).distinct().collect(Collectors.toList()));
+                serviceBundleIdsMap.put(stringListEntry.getKey(), stringListEntry.getValue().stream().map(UserAuthorityView::getBundleId).distinct().collect(Collectors.toList()));
             }
-            result.put(stringMapEntry.getKey(), serviceAuthorityIdsMap);
+            result.put(stringMapEntry.getKey(), serviceBundleIdsMap);
         }
         return result;
     }
