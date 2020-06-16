@@ -72,12 +72,13 @@ public class AuthorityService extends AbstractService implements AdjustAuthority
     @Override
     public Session login(@NotNull final String avatar, @NotNull final String password, String businessDepartmentUuid) throws SQLException {
         User user = authorityLoadPort.loadUserByAvatarAndPassword(avatar, password);
-        UserView userView = UserView.fromUser(user);
-        userView.setAuthorities(authorityLoadPort.loadAuthorityViewByUserUuid(user.getUuid()));
         if (businessDepartmentUuid == null) {
             businessDepartmentUuid = user.getDepartmentUuid();
         }
-        userView.setBusinessDepartmentUuid(businessDepartmentUuid)
+        UserView userView = UserView.fromUser(user)
+                .setAuthorities(authorityLoadPort.loadAuthorityViewByUserUuid(user.getUuid()))
+                .setFreeBundleIds(authorityLoadPort.loadFreeBundle())
+                .setBusinessDepartmentUuid(businessDepartmentUuid)
                 .setBusinessDepartmentName(authorityLoadPort.loadDepartmentByUuid(businessDepartmentUuid).getName());
         String token = TokenGenerator.generateToken(userView, tokenConfig.getSecret());
         SessionFactory.INSTANCE.register(token, userView, tokenConfig.getExpiration(), tokenConfig.getRefreshTime());

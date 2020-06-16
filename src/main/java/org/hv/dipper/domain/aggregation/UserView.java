@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hv.biscuits.spine.model.User;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +23,7 @@ public class UserView implements Serializable {
     private final String departmentName;
     private String businessDepartmentUuid;
     private String businessDepartmentName;
+    private final List<String> freeBundleIds;
     private final Map<String, Map<String, List<UserAuthorityView>>> departmentServiceUserAuthorityViewMap;
     private final Map<String, Map<String, List<UserAuthorityView>>> serviceDepartmentUserAuthorityViewMap;
 
@@ -31,6 +33,7 @@ public class UserView implements Serializable {
         this.name = name;
         this.departmentUuid = departmentUuid;
         this.departmentName = departmentName;
+        this.freeBundleIds = new ArrayList<>();
         this.departmentServiceUserAuthorityViewMap = new HashMap<>();
         this.serviceDepartmentUserAuthorityViewMap = new HashMap<>();
     }
@@ -50,13 +53,19 @@ public class UserView implements Serializable {
      *
      * @param userAuthorityViews 用户权限映射视图列表 {@link UserAuthorityView}
      */
-    public void setAuthorities(List<UserAuthorityView> userAuthorityViews) {
+    public UserView setAuthorities(List<UserAuthorityView> userAuthorityViews) {
         Map<String, Map<String, List<UserAuthorityView>>> departmentServiceUserAuthorityViewMap = userAuthorityViews.stream()
                 .collect(Collectors.groupingBy(UserAuthorityView::getDepartmentUuid, Collectors.groupingBy(UserAuthorityView::getServiceId, Collectors.toList())));
         this.departmentServiceUserAuthorityViewMap.putAll(departmentServiceUserAuthorityViewMap);
         Map<String, Map<String, List<UserAuthorityView>>> serviceDepartmentUserAuthorityViewMap = userAuthorityViews.stream()
                 .collect(Collectors.groupingBy(UserAuthorityView::getServiceId, Collectors.groupingBy(UserAuthorityView::getDepartmentUuid, Collectors.toList())));
         this.serviceDepartmentUserAuthorityViewMap.putAll(serviceDepartmentUserAuthorityViewMap);
+        return this;
+    }
+
+    public UserView setFreeBundleIds(List<BundleView> freeBundleViews) {
+        this.freeBundleIds.addAll(freeBundleViews.stream().map(BundleView::getBundleId).collect(Collectors.toList()));
+        return this;
     }
 
     /**
@@ -106,9 +115,10 @@ public class UserView implements Serializable {
             for (Map.Entry<String, List<UserAuthorityView>> stringListEntry : stringMapEntry.getValue().entrySet()) {
                 serviceBundleIdsMap.put(stringListEntry.getKey(), stringListEntry.getValue().stream().map(UserAuthorityView::getBundleId).distinct().collect(Collectors.toList()));
             }
+            // TODO Check
+            serviceBundleIdsMap.put("FREE", this.freeBundleIds);
             result.put(stringMapEntry.getKey(), serviceBundleIdsMap);
         }
-        // TODO Free Bundle Collection
         return result;
     }
 
@@ -125,6 +135,7 @@ public class UserView implements Serializable {
             for (Map.Entry<String, List<UserAuthorityView>> stringListEntry : stringMapEntry.getValue().entrySet()) {
                 serviceBundleIdsMap.put(stringListEntry.getKey(), stringListEntry.getValue().stream().map(UserAuthorityView::getBundleId).distinct().collect(Collectors.toList()));
             }
+            serviceBundleIdsMap.put("FREE", this.freeBundleIds);
             result.put(stringMapEntry.getKey(), serviceBundleIdsMap);
         }
         return result;
@@ -134,6 +145,7 @@ public class UserView implements Serializable {
      * @return 当前工作科室下可访问的bundle集合
      */
     public List<String> getBundleIds() {
+        // TODO Free Bundles
         return this.departmentServiceUserAuthorityViewMap.getOrDefault(this.businessDepartmentUuid, new HashMap<>(0)).values().stream()
                 .flatMap(Collection::stream).map(UserAuthorityView::getBundleId).distinct().collect(Collectors.toList());
     }
