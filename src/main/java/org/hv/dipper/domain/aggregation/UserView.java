@@ -23,7 +23,7 @@ public class UserView implements Serializable {
     private final String departmentName;
     private String businessDepartmentUuid;
     private String businessDepartmentName;
-    private final List<String> freeBundleIds;
+    private final List<BundleView> freeBundles;
     private final Map<String, Map<String, List<UserAuthorityView>>> departmentServiceUserAuthorityViewMap;
     private final Map<String, Map<String, List<UserAuthorityView>>> serviceDepartmentUserAuthorityViewMap;
 
@@ -33,7 +33,7 @@ public class UserView implements Serializable {
         this.name = name;
         this.departmentUuid = departmentUuid;
         this.departmentName = departmentName;
-        this.freeBundleIds = new ArrayList<>();
+        this.freeBundles = new ArrayList<>();
         this.departmentServiceUserAuthorityViewMap = new HashMap<>();
         this.serviceDepartmentUserAuthorityViewMap = new HashMap<>();
     }
@@ -63,8 +63,8 @@ public class UserView implements Serializable {
         return this;
     }
 
-    public UserView setFreeBundleIds(List<BundleView> freeBundleViews) {
-        this.freeBundleIds.addAll(freeBundleViews.stream().map(BundleView::getBundleId).collect(Collectors.toList()));
+    public UserView setFreeBundles(List<BundleView> freeBundleViews) {
+        this.freeBundles.addAll(freeBundleViews);
         return this;
     }
 
@@ -115,8 +115,6 @@ public class UserView implements Serializable {
             for (Map.Entry<String, List<UserAuthorityView>> stringListEntry : stringMapEntry.getValue().entrySet()) {
                 serviceBundleIdsMap.put(stringListEntry.getKey(), stringListEntry.getValue().stream().map(UserAuthorityView::getBundleId).distinct().collect(Collectors.toList()));
             }
-            // TODO Check
-            serviceBundleIdsMap.put("FREE", this.freeBundleIds);
             result.put(stringMapEntry.getKey(), serviceBundleIdsMap);
         }
         return result;
@@ -135,17 +133,29 @@ public class UserView implements Serializable {
             for (Map.Entry<String, List<UserAuthorityView>> stringListEntry : stringMapEntry.getValue().entrySet()) {
                 serviceBundleIdsMap.put(stringListEntry.getKey(), stringListEntry.getValue().stream().map(UserAuthorityView::getBundleId).distinct().collect(Collectors.toList()));
             }
-            serviceBundleIdsMap.put("FREE", this.freeBundleIds);
             result.put(stringMapEntry.getKey(), serviceBundleIdsMap);
         }
         return result;
     }
 
     /**
+     * @return 获取可自由访问的bundle集合
+     */
+    public Map<String, List<String>> getFreeBundles() {
+        Map<String, List<String>> freeBundlesMap = new HashMap<>(this.freeBundles.size() * 4 / 3 + 1);
+        for (BundleView freeBundle : this.freeBundles) {
+            freeBundlesMap.putIfAbsent(freeBundle.getServiceId(), new ArrayList<>());
+            List<String> bundles = freeBundlesMap.get(freeBundle.getServiceId());
+            bundles.add(freeBundle.getBundleId());
+        }
+        return freeBundlesMap;
+    }
+
+    /**
      * @return 当前工作科室下可访问的bundle集合
      */
+    @JsonIgnore
     public List<String> getBundleIds() {
-        // TODO Free Bundles
         return this.departmentServiceUserAuthorityViewMap.getOrDefault(this.businessDepartmentUuid, new HashMap<>(0)).values().stream()
                 .flatMap(Collection::stream).map(UserAuthorityView::getBundleId).distinct().collect(Collectors.toList());
     }
@@ -153,6 +163,7 @@ public class UserView implements Serializable {
     /**
      * @return 当前工作科室下拥有的权限集合
      */
+    @JsonIgnore
     public List<String> getAuthIds() {
         return this.departmentServiceUserAuthorityViewMap.getOrDefault(this.businessDepartmentUuid, new HashMap<>(0)).values().stream()
                 .flatMap(Collection::stream).map(UserAuthorityView::getAuthorityId).collect(Collectors.toList());

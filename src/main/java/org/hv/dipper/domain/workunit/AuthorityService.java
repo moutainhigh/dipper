@@ -77,7 +77,7 @@ public class AuthorityService extends AbstractService implements AdjustAuthority
         }
         UserView userView = UserView.fromUser(user)
                 .setAuthorities(authorityLoadPort.loadAuthorityViewByUserUuid(user.getUuid()))
-                .setFreeBundleIds(authorityLoadPort.loadFreeBundle())
+                .setFreeBundles(authorityLoadPort.loadFreeBundle())
                 .setBusinessDepartmentUuid(businessDepartmentUuid)
                 .setBusinessDepartmentName(authorityLoadPort.loadDepartmentByUuid(businessDepartmentUuid).getName());
         String token = TokenGenerator.generateToken(userView, tokenConfig.getSecret());
