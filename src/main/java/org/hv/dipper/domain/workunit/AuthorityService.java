@@ -138,6 +138,15 @@ public class AuthorityService extends AbstractService implements AdjustAuthority
     }
 
     @Override
+    public boolean checkExpiation(String token) {
+        Session session = SessionFactory.INSTANCE.getSession(token);
+        if (session == null) {
+            return true;
+        }
+        return session.checkExpiation();
+    }
+
+    @Override
     public boolean freeAction(String serviceId, String bundleId, String actionId) {
         return authorityFactory.isFree(serviceId.toUpperCase(), bundleId) || authorityFactory.getAuthId(serviceId.toUpperCase(), bundleId, actionId) == null;
     }

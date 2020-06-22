@@ -154,7 +154,6 @@ public class UserView implements Serializable {
     /**
      * @return 当前工作科室下可访问的bundle集合
      */
-    @JsonIgnore
     public List<String> getBundleIds() {
         return this.departmentServiceUserAuthorityViewMap.getOrDefault(this.businessDepartmentUuid, new HashMap<>(0)).values().stream()
                 .flatMap(Collection::stream).map(UserAuthorityView::getBundleId).distinct().collect(Collectors.toList());
@@ -163,7 +162,6 @@ public class UserView implements Serializable {
     /**
      * @return 当前工作科室下拥有的权限集合
      */
-    @JsonIgnore
     public List<String> getAuthIds() {
         return this.departmentServiceUserAuthorityViewMap.getOrDefault(this.businessDepartmentUuid, new HashMap<>(0)).values().stream()
                 .flatMap(Collection::stream).map(UserAuthorityView::getAuthorityId).collect(Collectors.toList());

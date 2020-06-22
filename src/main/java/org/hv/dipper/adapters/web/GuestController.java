@@ -42,4 +42,9 @@ public class GuestController {
         authorityCheck.logout(token);
         return Body.success();
     }
+
+    @Action(actionId = "checkExpiation")
+    public Body checkExpiation(@RequestHeader(name = "Authorization") String token) {
+        return Body.success().data(authorityCheck.checkExpiation(token));
+    }
 }

@@ -55,6 +55,14 @@ public interface AuthorityCheck {
     UserView parseUserView(String token);
 
     /**
+     * 检测令牌是否过期
+     *
+     * @param token 令牌
+     * @return 是否过期
+     */
+    boolean checkExpiation(String token);
+
+    /**
      * 判断指定action是否不需要权限
      *
      * @param serviceId 服务
