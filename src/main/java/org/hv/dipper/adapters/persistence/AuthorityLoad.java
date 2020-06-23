@@ -1,5 +1,6 @@
 package org.hv.dipper.adapters.persistence;
 
+import org.hv.biscuits.spine.model.Authority;
 import org.hv.dipper.domain.aggregation.BundleView;
 import org.hv.dipper.domain.port.out.AuthorityLoadPort;
 import org.hv.dipper.domain.aggregation.AuthorityView;
@@ -20,6 +21,11 @@ import java.util.List;
  */
 @Component
 public class AuthorityLoad extends AbstractRepository implements AuthorityLoadPort {
+
+    @Override
+    public List<Authority> loadAll() {
+        return this.getSession().list(Authority.class);
+    }
 
     @Override
     public List<AuthorityView> loadAllAuthorityView() throws SQLException {

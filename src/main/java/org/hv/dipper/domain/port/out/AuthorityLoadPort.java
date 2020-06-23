@@ -1,5 +1,6 @@
 package org.hv.dipper.domain.port.out;
 
+import org.hv.biscuits.spine.model.Authority;
 import org.hv.dipper.domain.aggregation.AuthorityView;
 import org.hv.dipper.domain.aggregation.BundleView;
 import org.hv.dipper.domain.aggregation.UserAuthorityView;
@@ -13,6 +14,13 @@ import java.util.List;
  * @author wujianchuan
  */
 public interface AuthorityLoadPort {
+
+    /**
+     * 获取所有权限信息
+     *
+     * @return 权限信息集合
+     */
+    List<Authority> loadAll();
 
     /**
      * 获取所有的动作和权限的映射关系{@link AuthorityView}
