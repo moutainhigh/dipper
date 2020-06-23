@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -149,6 +150,13 @@ public class UserView implements Serializable {
             bundles.add(freeBundle.getBundleId());
         }
         return freeBundlesMap;
+    }
+
+    /**
+     * @return 当前工作科室下可访问的service集合
+     */
+    public Set<String> getServiceIds() {
+        return this.departmentServiceUserAuthorityViewMap.getOrDefault(this.departmentUuid, new HashMap<>(0)).keySet();
     }
 
     /**
