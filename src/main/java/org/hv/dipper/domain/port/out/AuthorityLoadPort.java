@@ -18,9 +18,10 @@ public interface AuthorityLoadPort {
     /**
      * 获取所有权限信息
      *
+     * @param serviceId 服务ID
      * @return 权限信息集合
      */
-    List<Authority> loadAll();
+    List<Authority> loadByServiceId(String serviceId);
 
     /**
      * 获取所有的动作和权限的映射关系{@link AuthorityView}

@@ -23,8 +23,10 @@ import java.util.List;
 public class AuthorityLoad extends AbstractRepository implements AuthorityLoadPort {
 
     @Override
-    public List<Authority> loadAll() {
-        return this.getSession().list(Authority.class);
+    public List<Authority> loadByServiceId(String serviceId) {
+        Criteria criteria = this.getSession().createCriteria(Authority.class)
+                .add(Restrictions.equ("serviceId", serviceId));
+        return criteria.list();
     }
 
     @Override
