@@ -1,5 +1,6 @@
 package org.hv.dipper.domain.workunit;
 
+import org.hv.biscuits.spine.model.Department;
 import org.hv.dipper.config.TokenConfig;
 import org.hv.dipper.domain.aggregation.BundleView;
 import org.hv.dipper.domain.factory.AuthorityFactory;
@@ -75,11 +76,14 @@ public class AuthorityService extends AbstractService implements AdjustAuthority
         if (businessDepartmentUuid == null) {
             businessDepartmentUuid = user.getDepartmentUuid();
         }
+        Department department = authorityLoadPort.loadDepartmentByUuid(businessDepartmentUuid);
         UserView userView = UserView.fromUser(user)
                 .setAuthorities(authorityLoadPort.loadAuthorityViewByUserUuid(user.getUuid()))
                 .setFreeBundles(authorityLoadPort.loadFreeBundle())
-                .setBusinessDepartmentUuid(businessDepartmentUuid)
-                .setBusinessDepartmentName(authorityLoadPort.loadDepartmentByUuid(businessDepartmentUuid).getName());
+                .setBusinessDepartmentUuid(department.getUuid())
+                .setBusinessDepartmentName(department.getName())
+                .setStationUuid(department.getStationUuid())
+                .setStationCode(department.getStationCode());
         String token = TokenGenerator.generateToken(userView, tokenConfig.getSecret());
         SessionFactory.INSTANCE.register(token, userView, tokenConfig.getExpiration(), tokenConfig.getRefreshTime());
         return SessionFactory.INSTANCE.getSession(token);
@@ -111,6 +115,8 @@ public class AuthorityService extends AbstractService implements AdjustAuthority
             result.put("departmentName", userView.getDepartmentName());
             result.put("businessDepartmentUuid", userView.getBusinessDepartmentUuid());
             result.put("businessDepartmentName", userView.getBusinessDepartmentName());
+            result.put("stationUuid", userView.getStationUuid());
+            result.put("stationCode", userView.getStationCode());
             String authorityId = authorityFactory.getAuthId(serviceId, bundleId, actionId);
             if (authorityFactory.isFree(serviceId, bundleId) || authorityId == null) {
                 result.put("allowed", true);

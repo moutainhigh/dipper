@@ -24,6 +24,8 @@ public class UserView implements Serializable {
     private final String departmentName;
     private String businessDepartmentUuid;
     private String businessDepartmentName;
+    private String stationUuid;
+    private String stationCode;
     private final List<BundleView> freeBundles;
     private final Map<String, Map<String, List<UserAuthorityView>>> departmentServiceUserAuthorityViewMap;
     private final Map<String, Map<String, List<UserAuthorityView>>> serviceDepartmentUserAuthorityViewMap;
@@ -185,6 +187,16 @@ public class UserView implements Serializable {
         return this;
     }
 
+    public UserView setStationUuid(String stationUuid) {
+        this.stationUuid = stationUuid;
+        return this;
+    }
+
+    public UserView setStationCode(String stationCode) {
+        this.stationCode = stationCode;
+        return this;
+    }
+
     public String getUuid() {
         return uuid;
     }
@@ -211,5 +223,13 @@ public class UserView implements Serializable {
 
     public String getBusinessDepartmentName() {
         return businessDepartmentName;
+    }
+
+    public String getStationUuid() {
+        return stationUuid;
+    }
+
+    public String getStationCode() {
+        return stationCode;
     }
 }

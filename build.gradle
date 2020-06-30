@@ -5,7 +5,7 @@ apply plugin: 'build-dashboard'
 apply plugin: 'maven-publish'
 
 group = 'com.github.leyan95'
-version = '0.1.8.PRE'
+version = '0.1.9.PRE'
 sourceCompatibility = 1.8
 
 compileJava {
@@ -74,7 +74,7 @@ compileJava.dependsOn(processResources)
 
 dependencies {
     implementation('org.springframework.boot:spring-boot-starter-web:2.1.1.RELEASE')
-    implementation ('com.github.leyan95:biscuits:0.2.3.PRE')
+    implementation ('com.github.leyan95:biscuits:0.2.10.PRE')
     implementation('mysql:mysql-connector-java:8.0.13')
     testImplementation('org.springframework.boot:spring-boot-starter-test:2.1.1.RELEASE')
 }
