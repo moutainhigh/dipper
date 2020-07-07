@@ -1,12 +1,20 @@
 package org.hv.dipper.domain.aggregation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @author wujianchuan
  */
 public class Session implements Serializable {
     private static final long serialVersionUID = 487195561134671815L;
+    private final Logger logger = LoggerFactory.getLogger(Session.class);
+    private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
     private final UserView userView;
     private final String token;
     private long expirationTime;
@@ -19,6 +27,7 @@ public class Session implements Serializable {
         this.expirationTime = expirationTime;
         this.lifeLength = lifeLength;
         this.rebirthTimePeriphery = rebirthTimePeriphery;
+        logger.info("======================================= 令牌超时时间为: {} =======================================", dateFormat.format(new Date(expirationTime)));
     }
 
     /**
@@ -44,11 +53,13 @@ public class Session implements Serializable {
     public boolean checkExpiation() {
         long currentTime = System.currentTimeMillis();
         if (currentTime > expirationTime) {
+            logger.info("======================================= 令牌已超时: {} =======================================", dateFormat.format(new Date(expirationTime)));
             return true;
         } else {
             if (currentTime > rebirthTimePeriphery) {
                 expirationTime = currentTime + lifeLength;
                 rebirthTimePeriphery = rebirthTimePeriphery + lifeLength;
+                logger.info("======================================= 令牌超时时间更新为: {} =======================================", dateFormat.format(new Date(expirationTime)));
             }
             return false;
         }

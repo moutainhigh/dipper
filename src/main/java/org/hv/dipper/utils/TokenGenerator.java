@@ -16,12 +16,14 @@ public class TokenGenerator {
     public static final String CLAIM_KEY_USER_AVATAR = "userAvatar";
     public static final String CLAIM_KEY_DEPARTMENT_UUID = "departmentUuid";
     public static final String CLAIM_KEY_WORK_DEPARTMENT_UUID = "workDepartmentUuid";
+    public static final String CLAIM_KEY_GENERATE_TIME = "generateTime";
 
     public static String generateToken(UserView userView, String secret) {
         Map<String, Object> claims = new HashMap<>(7);
         claims.put(CLAIM_KEY_USER_AVATAR, userView.getAvatar());
         claims.put(CLAIM_KEY_DEPARTMENT_UUID, userView.getDepartmentUuid());
         claims.put(CLAIM_KEY_WORK_DEPARTMENT_UUID, userView.getBusinessDepartmentUuid());
+        claims.put(CLAIM_KEY_GENERATE_TIME, System.currentTimeMillis());
         return Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, secret).compact();
     }
 
