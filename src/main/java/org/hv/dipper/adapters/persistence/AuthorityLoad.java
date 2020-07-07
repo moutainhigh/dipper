@@ -1,13 +1,13 @@
 package org.hv.dipper.adapters.persistence;
 
-import org.hv.biscuits.spine.model.Authority;
-import org.hv.dipper.domain.aggregation.BundleView;
-import org.hv.dipper.domain.port.out.AuthorityLoadPort;
-import org.hv.dipper.domain.aggregation.AuthorityView;
-import org.hv.dipper.domain.aggregation.UserAuthorityView;
 import org.hv.biscuits.repository.AbstractRepository;
+import org.hv.biscuits.spine.model.Authority;
 import org.hv.biscuits.spine.model.Department;
 import org.hv.biscuits.spine.model.User;
+import org.hv.dipper.domain.aggregation.AuthorityView;
+import org.hv.dipper.domain.aggregation.BundleView;
+import org.hv.dipper.domain.aggregation.UserAuthorityView;
+import org.hv.dipper.domain.port.out.AuthorityLoadPort;
 import org.hv.pocket.criteria.Criteria;
 import org.hv.pocket.criteria.Restrictions;
 import org.hv.pocket.query.SQLQuery;
@@ -23,10 +23,8 @@ import java.util.List;
 public class AuthorityLoad extends AbstractRepository implements AuthorityLoadPort {
 
     @Override
-    public List<Authority> loadByServiceId(String serviceId) {
-        Criteria criteria = this.getSession().createCriteria(Authority.class)
-                .add(Restrictions.equ("serviceId", serviceId));
-        return criteria.list();
+    public List<Authority> loadAll() {
+        return this.getSession().list(Authority.class);
     }
 
     @Override

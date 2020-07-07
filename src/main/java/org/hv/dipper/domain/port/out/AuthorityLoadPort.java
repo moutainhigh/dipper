@@ -1,11 +1,11 @@
 package org.hv.dipper.domain.port.out;
 
 import org.hv.biscuits.spine.model.Authority;
+import org.hv.biscuits.spine.model.Department;
+import org.hv.biscuits.spine.model.User;
 import org.hv.dipper.domain.aggregation.AuthorityView;
 import org.hv.dipper.domain.aggregation.BundleView;
 import org.hv.dipper.domain.aggregation.UserAuthorityView;
-import org.hv.biscuits.spine.model.Department;
-import org.hv.biscuits.spine.model.User;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -18,10 +18,9 @@ public interface AuthorityLoadPort {
     /**
      * 获取所有权限信息
      *
-     * @param serviceId 服务ID
      * @return 权限信息集合
      */
-    List<Authority> loadByServiceId(String serviceId);
+    List<Authority> loadAll();
 
     /**
      * 获取所有的动作和权限的映射关系{@link AuthorityView}
