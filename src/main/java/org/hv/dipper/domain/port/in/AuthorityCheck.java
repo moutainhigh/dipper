@@ -26,6 +26,15 @@ public interface AuthorityCheck {
     Session login(@NotNull String avatar, @NotNull String password, @NotNull String workDepartmentUuid) throws SQLException;
 
     /**
+     * 切换工作部门
+     *
+     * @param avatar             用户
+     * @param workDepartmentUuid 部门标识
+     * @return 用户会话
+     */
+    Session switchBusinessDepartment(@NotNull String avatar, @NotNull String workDepartmentUuid) throws SQLException;
+
+    /**
      * 注销登录
      * 销毁会话
      *

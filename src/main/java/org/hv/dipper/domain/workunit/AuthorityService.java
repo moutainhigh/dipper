@@ -90,6 +90,18 @@ public class AuthorityService extends AbstractService implements AdjustAuthority
     }
 
     @Override
+    public Session switchBusinessDepartment(@NotNull String token, @NotNull String businessDepartmentUuid) throws SQLException {
+        Session session = SessionFactory.INSTANCE.getSession(token);
+        Department department = authorityLoadPort.loadDepartmentByUuid(businessDepartmentUuid);
+        session.getUserView()
+                .setBusinessDepartmentUuid(department.getUuid())
+                .setBusinessDepartmentName(department.getName())
+                .setStationUuid(department.getStationUuid())
+                .setStationCode(department.getStationCode());
+        return session;
+    }
+
+    @Override
     public void logout(String token) {
         SessionFactory.INSTANCE.expel(token);
     }
