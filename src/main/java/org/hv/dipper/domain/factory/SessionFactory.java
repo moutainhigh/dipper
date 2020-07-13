@@ -1,7 +1,7 @@
 package org.hv.dipper.domain.factory;
 
+import org.hv.biscuits.spine.viewmodel.UserView;
 import org.hv.dipper.domain.aggregation.Session;
-import org.hv.dipper.domain.aggregation.UserView;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

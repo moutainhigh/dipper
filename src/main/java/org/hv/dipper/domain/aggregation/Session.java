@@ -1,5 +1,6 @@
 package org.hv.dipper.domain.aggregation;
 
+import org.hv.biscuits.spine.viewmodel.UserView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

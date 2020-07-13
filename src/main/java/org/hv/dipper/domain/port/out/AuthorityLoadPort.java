@@ -3,9 +3,9 @@ package org.hv.dipper.domain.port.out;
 import org.hv.biscuits.spine.model.Authority;
 import org.hv.biscuits.spine.model.Department;
 import org.hv.biscuits.spine.model.User;
+import org.hv.biscuits.spine.viewmodel.UserAuthorityView;
 import org.hv.dipper.domain.aggregation.AuthorityView;
 import org.hv.dipper.domain.aggregation.BundleView;
-import org.hv.dipper.domain.aggregation.UserAuthorityView;
 
 import java.sql.SQLException;
 import java.util.List;

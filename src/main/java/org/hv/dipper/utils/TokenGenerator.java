@@ -1,9 +1,9 @@
 package org.hv.dipper.utils;
 
-import org.hv.dipper.domain.aggregation.UserView;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.hv.biscuits.spine.viewmodel.UserView;
 
 import java.util.HashMap;
 import java.util.Map;
