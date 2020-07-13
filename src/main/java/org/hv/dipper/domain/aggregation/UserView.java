@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hv.biscuits.spine.model.User;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -17,18 +16,19 @@ import java.util.stream.Collectors;
  */
 public class UserView implements Serializable {
     private static final long serialVersionUID = -8764729476298658876L;
-    private final String uuid;
-    private final String avatar;
-    private final String name;
-    private final String departmentUuid;
-    private final String departmentName;
+    private String uuid;
+    private String avatar;
+    private String name;
+    private String departmentUuid;
+    private String departmentName;
     private String businessDepartmentUuid;
     private String businessDepartmentName;
     private String stationUuid;
     private String stationCode;
-    private final List<BundleView> freeBundles;
-    private final Map<String, Map<String, List<UserAuthorityView>>> departmentServiceUserAuthorityViewMap;
-    private final Map<String, Map<String, List<UserAuthorityView>>> serviceDepartmentUserAuthorityViewMap;
+    private Map<String, Map<String, List<UserAuthorityView>>> departmentServiceUserAuthorityViewMap;
+
+    public UserView() {
+    }
 
     private UserView(String uuid, String avatar, String name, String departmentUuid, String departmentName) {
         this.uuid = uuid;
@@ -36,9 +36,7 @@ public class UserView implements Serializable {
         this.name = name;
         this.departmentUuid = departmentUuid;
         this.departmentName = departmentName;
-        this.freeBundles = new ArrayList<>();
         this.departmentServiceUserAuthorityViewMap = new HashMap<>();
-        this.serviceDepartmentUserAuthorityViewMap = new HashMap<>();
     }
 
     /**
@@ -60,103 +58,13 @@ public class UserView implements Serializable {
         Map<String, Map<String, List<UserAuthorityView>>> departmentServiceUserAuthorityViewMap = userAuthorityViews.stream()
                 .collect(Collectors.groupingBy(UserAuthorityView::getDepartmentUuid, Collectors.groupingBy(UserAuthorityView::getServiceId, Collectors.toList())));
         this.departmentServiceUserAuthorityViewMap.putAll(departmentServiceUserAuthorityViewMap);
-        Map<String, Map<String, List<UserAuthorityView>>> serviceDepartmentUserAuthorityViewMap = userAuthorityViews.stream()
-                .collect(Collectors.groupingBy(UserAuthorityView::getServiceId, Collectors.groupingBy(UserAuthorityView::getDepartmentUuid, Collectors.toList())));
-        this.serviceDepartmentUserAuthorityViewMap.putAll(serviceDepartmentUserAuthorityViewMap);
         return this;
-    }
-
-    public UserView setFreeBundles(List<BundleView> freeBundleViews) {
-        this.freeBundles.addAll(freeBundleViews);
-        return this;
-    }
-
-    /**
-     * departmentUuid->serviceId->authorityIds
-     *
-     * @return authority标识集合
-     */
-    public Map<String, Map<String, List<String>>> getDepartmentServiceAuthorityIds() {
-        Map<String, Map<String, List<String>>> result = new HashMap<>(this.departmentServiceUserAuthorityViewMap.size() * 4 / 3 + 1);
-        for (Map.Entry<String, Map<String, List<UserAuthorityView>>> stringMapEntry : this.departmentServiceUserAuthorityViewMap.entrySet()) {
-            Map<String, List<String>> serviceAuthorityIdsMap = new HashMap<>(stringMapEntry.getValue().size() * 4 / 3 + 1);
-            for (Map.Entry<String, List<UserAuthorityView>> stringListEntry : stringMapEntry.getValue().entrySet()) {
-                serviceAuthorityIdsMap.put(stringListEntry.getKey(), stringListEntry.getValue().stream().map(UserAuthorityView::getAuthorityId).collect(Collectors.toList()));
-            }
-            result.put(stringMapEntry.getKey(), serviceAuthorityIdsMap);
-        }
-        return result;
-    }
-
-    /**
-     * serviceId->departmentUuid->authorityIds
-     *
-     * @return authority标识集合
-     */
-    @JsonIgnore
-    public Map<String, Map<String, List<String>>> getServiceDepartmentAuthorityIds() {
-        Map<String, Map<String, List<String>>> result = new HashMap<>(this.serviceDepartmentUserAuthorityViewMap.size() * 4 / 3 + 1);
-        for (Map.Entry<String, Map<String, List<UserAuthorityView>>> stringMapEntry : this.serviceDepartmentUserAuthorityViewMap.entrySet()) {
-            Map<String, List<String>> serviceAuthorityIdsMap = new HashMap<>(stringMapEntry.getValue().size() * 4 / 3 + 1);
-            for (Map.Entry<String, List<UserAuthorityView>> stringListEntry : stringMapEntry.getValue().entrySet()) {
-                serviceAuthorityIdsMap.put(stringListEntry.getKey(), stringListEntry.getValue().stream().map(UserAuthorityView::getAuthorityId).collect(Collectors.toList()));
-            }
-            result.put(stringMapEntry.getKey(), serviceAuthorityIdsMap);
-        }
-        return result;
-    }
-
-    /**
-     * departmentUuid->serviceId->bundleIds
-     *
-     * @return bundle标识集合
-     */
-    public Map<String, Map<String, List<String>>> getDepartmentServiceBundleIds() {
-        Map<String, Map<String, List<String>>> result = new HashMap<>(this.departmentServiceUserAuthorityViewMap.size() * 4 / 3 + 1);
-        for (Map.Entry<String, Map<String, List<UserAuthorityView>>> stringMapEntry : this.departmentServiceUserAuthorityViewMap.entrySet()) {
-            Map<String, List<String>> serviceBundleIdsMap = new HashMap<>(stringMapEntry.getValue().size() * 4 / 3 + 1);
-            for (Map.Entry<String, List<UserAuthorityView>> stringListEntry : stringMapEntry.getValue().entrySet()) {
-                serviceBundleIdsMap.put(stringListEntry.getKey(), stringListEntry.getValue().stream().map(UserAuthorityView::getBundleId).distinct().collect(Collectors.toList()));
-            }
-            result.put(stringMapEntry.getKey(), serviceBundleIdsMap);
-        }
-        return result;
-    }
-
-    /**
-     * departmentUuid->serviceId->bundleIds
-     *
-     * @return bundle标识集合
-     */
-    @JsonIgnore
-    public Map<String, Map<String, List<String>>> getServiceDepartmentBundleIds() {
-        Map<String, Map<String, List<String>>> result = new HashMap<>(this.serviceDepartmentUserAuthorityViewMap.size() * 4 / 3 + 1);
-        for (Map.Entry<String, Map<String, List<UserAuthorityView>>> stringMapEntry : this.serviceDepartmentUserAuthorityViewMap.entrySet()) {
-            Map<String, List<String>> serviceBundleIdsMap = new HashMap<>(stringMapEntry.getValue().size() * 4 / 3 + 1);
-            for (Map.Entry<String, List<UserAuthorityView>> stringListEntry : stringMapEntry.getValue().entrySet()) {
-                serviceBundleIdsMap.put(stringListEntry.getKey(), stringListEntry.getValue().stream().map(UserAuthorityView::getBundleId).distinct().collect(Collectors.toList()));
-            }
-            result.put(stringMapEntry.getKey(), serviceBundleIdsMap);
-        }
-        return result;
-    }
-
-    /**
-     * @return 获取可自由访问的bundle集合
-     */
-    public Map<String, List<String>> getFreeBundles() {
-        Map<String, List<String>> freeBundlesMap = new HashMap<>(this.freeBundles.size() * 4 / 3 + 1);
-        for (BundleView freeBundle : this.freeBundles) {
-            freeBundlesMap.putIfAbsent(freeBundle.getServiceId(), new ArrayList<>());
-            List<String> bundles = freeBundlesMap.get(freeBundle.getServiceId());
-            bundles.add(freeBundle.getBundleId());
-        }
-        return freeBundlesMap;
     }
 
     /**
      * @return 当前工作科室下可访问的service集合
      */
+    @JsonIgnore
     public Set<String> getServiceIds() {
         return this.departmentServiceUserAuthorityViewMap.getOrDefault(this.departmentUuid, new HashMap<>(0)).keySet();
     }
@@ -164,6 +72,7 @@ public class UserView implements Serializable {
     /**
      * @return 当前工作科室下可访问的bundle集合
      */
+    @JsonIgnore
     public List<String> getBundleIds() {
         return this.departmentServiceUserAuthorityViewMap.getOrDefault(this.businessDepartmentUuid, new HashMap<>(0)).values().stream()
                 .flatMap(Collection::stream).map(UserAuthorityView::getBundleId).distinct().collect(Collectors.toList());
@@ -172,6 +81,7 @@ public class UserView implements Serializable {
     /**
      * @return 当前工作科室下拥有的权限集合
      */
+    @JsonIgnore
     public List<String> getAuthIds() {
         return this.departmentServiceUserAuthorityViewMap.getOrDefault(this.businessDepartmentUuid, new HashMap<>(0)).values().stream()
                 .flatMap(Collection::stream).map(UserAuthorityView::getAuthorityId).collect(Collectors.toList());
@@ -194,6 +104,31 @@ public class UserView implements Serializable {
 
     public UserView setStationCode(String stationCode) {
         this.stationCode = stationCode;
+        return this;
+    }
+
+    public UserView setUuid(String uuid) {
+        this.uuid = uuid;
+        return this;
+    }
+
+    public UserView setAvatar(String avatar) {
+        this.avatar = avatar;
+        return this;
+    }
+
+    public UserView setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public UserView setDepartmentUuid(String departmentUuid) {
+        this.departmentUuid = departmentUuid;
+        return this;
+    }
+
+    public UserView setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
         return this;
     }
 

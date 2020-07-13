@@ -15,11 +15,14 @@ public class Session implements Serializable {
     private static final long serialVersionUID = 487195561134671815L;
     private final Logger logger = LoggerFactory.getLogger(Session.class);
     private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-    private final UserView userView;
-    private final String token;
+    private UserView userView;
+    private String token;
     private long expirationTime;
-    private final long lifeLength;
+    private long lifeLength;
     private long rebirthTimePeriphery;
+
+    public Session() {
+    }
 
     private Session(String token, UserView userView, long expirationTime, long lifeLength, long rebirthTimePeriphery) {
         this.token = token;
@@ -65,11 +68,43 @@ public class Session implements Serializable {
         }
     }
 
+    public void setUserView(UserView userView) {
+        this.userView = userView;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public void setExpirationTime(long expirationTime) {
+        this.expirationTime = expirationTime;
+    }
+
+    public void setLifeLength(long lifeLength) {
+        this.lifeLength = lifeLength;
+    }
+
+    public void setRebirthTimePeriphery(long rebirthTimePeriphery) {
+        this.rebirthTimePeriphery = rebirthTimePeriphery;
+    }
+
     public UserView getUserView() {
         return userView;
     }
 
     public String getToken() {
         return token;
+    }
+
+    public long getExpirationTime() {
+        return expirationTime;
+    }
+
+    public long getLifeLength() {
+        return lifeLength;
+    }
+
+    public long getRebirthTimePeriphery() {
+        return rebirthTimePeriphery;
     }
 }

@@ -1,28 +1,29 @@
 package org.hv.dipper.domain.workunit;
 
-import org.hv.biscuits.spine.model.Department;
-import org.hv.dipper.config.TokenConfig;
-import org.hv.dipper.domain.aggregation.BundleView;
-import org.hv.dipper.domain.factory.AuthorityFactory;
-import org.hv.dipper.domain.factory.SessionFactory;
-import org.hv.dipper.domain.port.out.AuthorityLoadPort;
-import org.hv.dipper.domain.aggregation.AuthorityView;
-import org.hv.dipper.domain.aggregation.Session;
-import org.hv.dipper.domain.aggregation.UserView;
-import org.hv.dipper.domain.port.in.AdjustAuthority;
-import org.hv.dipper.domain.port.in.AuthorityCheck;
-import org.hv.dipper.utils.TokenGenerator;
 import org.hv.biscuits.annotation.Service;
 import org.hv.biscuits.aspect.ServiceAspect;
 import org.hv.biscuits.service.AbstractService;
+import org.hv.biscuits.spine.model.Department;
 import org.hv.biscuits.spine.model.User;
+import org.hv.dipper.config.TokenConfig;
+import org.hv.dipper.domain.aggregation.AuthorityView;
+import org.hv.dipper.domain.aggregation.BundleView;
+import org.hv.dipper.domain.aggregation.Session;
+import org.hv.dipper.domain.aggregation.UserView;
+import org.hv.dipper.domain.factory.AuthorityFactory;
+import org.hv.dipper.domain.factory.SessionFactory;
+import org.hv.dipper.domain.port.in.AdjustAuthority;
+import org.hv.dipper.domain.port.in.AuthorityCheck;
+import org.hv.dipper.domain.port.out.AuthorityLoadPort;
+import org.hv.dipper.utils.TokenGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.core.annotation.Order;
 
 import javax.validation.constraints.NotNull;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ import java.util.Map;
 @Order
 @Service(session = "authentication")
 public class AuthorityService extends AbstractService implements AdjustAuthority, AuthorityCheck, CommandLineRunner {
+    private final Logger logger = LoggerFactory.getLogger(AuthorityService.class);
     private final AuthorityLoadPort authorityLoadPort;
     private final TokenConfig tokenConfig;
     private final AuthorityFactory authorityFactory = AuthorityFactory.INSTANCE;
@@ -79,7 +81,6 @@ public class AuthorityService extends AbstractService implements AdjustAuthority
         Department department = authorityLoadPort.loadDepartmentByUuid(businessDepartmentUuid);
         UserView userView = UserView.fromUser(user)
                 .setAuthorities(authorityLoadPort.loadAuthorityViewByUserUuid(user.getUuid()))
-                .setFreeBundles(authorityLoadPort.loadFreeBundle())
                 .setBusinessDepartmentUuid(department.getUuid())
                 .setBusinessDepartmentName(department.getName())
                 .setStationUuid(department.getStationUuid())
@@ -92,12 +93,16 @@ public class AuthorityService extends AbstractService implements AdjustAuthority
     @Override
     public Session switchBusinessDepartment(@NotNull String token, @NotNull String businessDepartmentUuid) throws SQLException {
         Session session = SessionFactory.INSTANCE.getSession(token);
-        Department department = authorityLoadPort.loadDepartmentByUuid(businessDepartmentUuid);
-        session.getUserView()
-                .setBusinessDepartmentUuid(department.getUuid())
-                .setBusinessDepartmentName(department.getName())
-                .setStationUuid(department.getStationUuid())
-                .setStationCode(department.getStationCode());
+        if (session != null) {
+            Department department = authorityLoadPort.loadDepartmentByUuid(businessDepartmentUuid);
+            session.getUserView()
+                    .setBusinessDepartmentUuid(department.getUuid())
+                    .setBusinessDepartmentName(department.getName())
+                    .setStationUuid(department.getStationUuid())
+                    .setStationCode(department.getStationCode());
+        } else {
+            logger.warn("非法访问，token不合法：{}", token);
+        }
         return session;
     }
 
@@ -134,11 +139,7 @@ public class AuthorityService extends AbstractService implements AdjustAuthority
                 result.put("allowed", true);
             } else {
                 boolean allowed;
-                String departmentUuid = userView.getBusinessDepartmentUuid();
-                allowed = userView.getDepartmentServiceAuthorityIds()
-                        .getOrDefault(departmentUuid, new HashMap<>(0))
-                        .getOrDefault(serviceId, new ArrayList<>())
-                        .contains(authorityId);
+                allowed = userView.getAuthIds().contains(authorityId);
                 result.put("allowed", allowed);
                 result.put("errorMessage", allowed ? "通过" : String.format("没有权限访问 /%s/%s/%s", serviceId.toLowerCase(), bundleId, actionId));
             }
@@ -149,7 +150,7 @@ public class AuthorityService extends AbstractService implements AdjustAuthority
     @Override
     public UserView parseUserView(String token) {
         Session session = SessionFactory.INSTANCE.getSession(token);
-        if (session != null && session.checkExpiation()) {
+        if (session != null && !session.checkExpiation()) {
             return session.getUserView();
         }
         return null;
