@@ -95,11 +95,15 @@ public class AuthorityService extends AbstractService implements AdjustAuthority
         Session session = SessionFactory.INSTANCE.getSession(token);
         if (session != null) {
             Department department = authorityLoadPort.loadDepartmentByUuid(businessDepartmentUuid);
-            session.getUserView()
-                    .setBusinessDepartmentUuid(department.getUuid())
-                    .setBusinessDepartmentName(department.getName())
-                    .setStationUuid(department.getStationUuid())
-                    .setStationCode(department.getStationCode());
+            if (department != null) {
+                session.getUserView()
+                        .setBusinessDepartmentUuid(department.getUuid())
+                        .setBusinessDepartmentName(department.getName())
+                        .setStationUuid(department.getStationUuid())
+                        .setStationCode(department.getStationCode());
+            } else {
+                logger.warn("无效的部门标识：{}", businessDepartmentUuid);
+            }
         } else {
             logger.warn("非法访问，token不合法：{}", token);
         }
