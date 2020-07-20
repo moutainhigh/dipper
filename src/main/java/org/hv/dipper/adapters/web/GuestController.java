@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -28,7 +29,7 @@ public class GuestController {
     }
 
     @Action(actionId = "login", method = RequestMethod.POST, responseEncrypt = true)
-    public Body login(@RequestBody Map<String, String> userInfo) throws SQLException {
+    public Body login(@RequestBody Map<String, String> userInfo) throws SQLException, NoSuchAlgorithmException {
         //TODO 各个适配器都应该有自己的加密方式（加解密不下放到领域模型中）
         String avatar = userInfo.get("userName");
         String password = userInfo.get("password");

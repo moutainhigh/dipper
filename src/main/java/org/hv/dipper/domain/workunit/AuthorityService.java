@@ -75,6 +75,9 @@ public class AuthorityService extends AbstractService implements AdjustAuthority
     @Override
     public Session login(@NotNull final String avatar, @NotNull final String password, String businessDepartmentUuid) throws SQLException {
         User user = authorityLoadPort.loadUserByAvatarAndPassword(avatar, password);
+        if (user == null) {
+            throw new IllegalArgumentException("用户名或密码错误");
+        }
         if (businessDepartmentUuid == null) {
             businessDepartmentUuid = user.getDepartmentUuid();
         }
