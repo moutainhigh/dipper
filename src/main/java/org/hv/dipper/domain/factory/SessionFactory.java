@@ -4,7 +4,9 @@ import org.hv.biscuits.spine.viewmodel.UserView;
 import org.hv.dipper.domain.aggregation.Session;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author wujianchuan
@@ -46,5 +48,32 @@ public enum SessionFactory {
      */
     public void expel(String token) {
         sessionPool.remove(token);
+    }
+
+    /**
+     * 清理过期的会话
+     *
+     * @return 清理的会话个数
+     */
+    public long clean() {
+        Set<String> keys = sessionPool.keySet();
+        AtomicLong count = new AtomicLong(0);
+        keys.parallelStream().forEach(key -> {
+            Session session = sessionPool.get(key);
+            if (session != null && System.currentTimeMillis() > session.getExpirationTime()) {
+                sessionPool.remove(key);
+                count.incrementAndGet();
+            }
+        });
+        return count.get();
+    }
+
+    /**
+     * 获取会话数量
+     *
+     * @return 会话数量
+     */
+    public long count() {
+        return sessionPool.size();
     }
 }

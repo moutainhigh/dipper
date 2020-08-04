@@ -20,18 +20,20 @@ public class Session implements Serializable {
     private String token;
     private long expirationTime;
     private long lifeLength;
+    private long rebirthPeriod;
     private long rebirthTimePeriphery;
 
     public Session() {
     }
 
-    private Session(String token, UserView userView, long expirationTime, long lifeLength, long rebirthTimePeriphery) {
+    private Session(String token, UserView userView, long lifeLength, long rebirthPeriod) {
         this.token = token;
         this.userView = userView;
-        this.expirationTime = expirationTime;
         this.lifeLength = lifeLength;
-        this.rebirthTimePeriphery = rebirthTimePeriphery;
-        logger.info("======================================= 令牌超时时间为: {} =======================================", dateFormat.format(new Date(expirationTime)));
+        this.expirationTime = System.currentTimeMillis() + lifeLength;
+        this.rebirthPeriod = rebirthPeriod;
+        this.rebirthTimePeriphery = expirationTime - rebirthPeriod;
+        logger.info("======================= 令牌超时时间为: {} 续时截点为：{} =======================", dateFormat.format(new Date(expirationTime)), dateFormat.format(new Date(rebirthTimePeriphery)));
     }
 
     /**
@@ -44,8 +46,7 @@ public class Session implements Serializable {
      * @return 用户会话
      */
     public static Session newInstance(String token, UserView userView, long lifeLength, long rebirthPeriod) {
-        long expirationTime = System.currentTimeMillis() + lifeLength;
-        return new Session(token, userView, expirationTime, lifeLength, expirationTime - rebirthPeriod);
+        return new Session(token, userView, lifeLength, rebirthPeriod);
     }
 
     /**
@@ -62,8 +63,8 @@ public class Session implements Serializable {
         } else {
             if (currentTime > rebirthTimePeriphery) {
                 expirationTime = currentTime + lifeLength;
-                rebirthTimePeriphery = rebirthTimePeriphery + lifeLength;
-                logger.info("======================================= 令牌超时时间更新为: {} =======================================", dateFormat.format(new Date(expirationTime)));
+                rebirthTimePeriphery = currentTime + rebirthPeriod;
+                logger.info("======================= 令牌超时时间更新为: {} 续时截点为：{} =======================", dateFormat.format(new Date(expirationTime)), dateFormat.format(new Date(rebirthTimePeriphery)));
             }
             return false;
         }

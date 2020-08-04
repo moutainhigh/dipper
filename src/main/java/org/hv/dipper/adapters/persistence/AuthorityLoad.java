@@ -56,14 +56,14 @@ public class AuthorityLoad extends AbstractRepository implements AuthorityLoadPo
     @Override
     public List<UserAuthorityView> loadAuthorityViewByUserUuid(String userUuid) throws SQLException {
         SQLQuery sqlQuery = this.getSession().createSQLQuery("SELECT DISTINCT    " +
-                " T2.DEPARTMENT_UUID departmentUuid,    " +
-                " T0.SERVICE_ID serviceId,    " +
-                " T0.BUNDLE_ID bundleId,    " +
-                " T0.ID authorityId     " +
-                "FROM    " +
-                " T_AUTHORITY T0    " +
-                " LEFT JOIN T_ROLE_AUTH T1 ON T0.UUID = T1.AUTH_UUID    " +
-                " LEFT JOIN T_ROLE T2 ON T1.ROLE_UUID = T2.UUID    " +
+                " T2.DEPARTMENT_UUID departmentUuid, " +
+                " T0.SERVICE_ID serviceId, " +
+                " T0.BUNDLE_ID bundleId, " +
+                " T0.ID authorityId " +
+                "FROM " +
+                " T_AUTHORITY T0  " +
+                " LEFT JOIN T_ROLE_AUTH T1 ON T0.UUID = T1.AUTH_UUID " +
+                " RIGHT JOIN T_ROLE T2 ON T1.ROLE_UUID = T2.UUID " +
                 " LEFT JOIN T_USER_ROLE T3 ON T2.UUID = T3.ROLE_UUID " +
                 "WHERE " +
                 "    T3.USER_UUID = :USER_UUID AND T0.BUNDLE_ID IS NOT NULL ", UserAuthorityView.class);
