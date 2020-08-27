@@ -14,7 +14,9 @@ import org.hv.pocket.query.SQLQuery;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author wujianchuan
@@ -62,13 +64,37 @@ public class AuthorityLoad extends AbstractRepository implements AuthorityLoadPo
                 " T0.ID authorityId " +
                 "FROM " +
                 " T_AUTHORITY T0  " +
-                " LEFT JOIN T_ROLE_AUTH T1 ON T0.UUID = T1.AUTH_UUID " +
-                " RIGHT JOIN T_ROLE T2 ON T1.ROLE_UUID = T2.UUID " +
-                " LEFT JOIN T_USER_ROLE T3 ON T2.UUID = T3.ROLE_UUID " +
+                " INNER JOIN T_ROLE_AUTH T1 ON T0.UUID = T1.AUTH_UUID " +
+                " INNER JOIN T_ROLE T2 ON T1.ROLE_UUID = T2.UUID " +
+                " INNER JOIN T_USER_ROLE T3 ON T2.UUID = T3.ROLE_UUID " +
                 "WHERE " +
                 "    T3.USER_UUID = :USER_UUID AND T0.BUNDLE_ID IS NOT NULL ", UserAuthorityView.class);
         sqlQuery.setParameter("USER_UUID", userUuid);
-        return sqlQuery.list();
+        List<UserAuthorityView> userAuthorityViews = sqlQuery.list();
+        List<UserAuthorityView> withDepartmentUserAuthorityViews = new ArrayList<>();
+        List<UserAuthorityView> withoutDepartmentUserAuthorityViews = new ArrayList<>();
+        userAuthorityViews.forEach(userAuthorityView -> {
+            if (userAuthorityView.getDepartmentUuid() != null) {
+                withDepartmentUserAuthorityViews.add(userAuthorityView);
+            } else {
+                withoutDepartmentUserAuthorityViews.add(userAuthorityView);
+            }
+        });
+        if (!withoutDepartmentUserAuthorityViews.isEmpty()) {
+            List<String> departmentUuidList = this.getSession().list(Department.class).stream().map(Department::getUuid).collect(Collectors.toList());
+            for (String departmentUuid : departmentUuidList) {
+                for (UserAuthorityView withoutDepartmentUserAuthorityView : withoutDepartmentUserAuthorityViews) {
+                    UserAuthorityView userAuthorityView = new UserAuthorityView();
+                    userAuthorityView.setUserUuid(withoutDepartmentUserAuthorityView.getUserUuid());
+                    userAuthorityView.setDepartmentUuid(departmentUuid);
+                    userAuthorityView.setServiceId(withoutDepartmentUserAuthorityView.getServiceId());
+                    userAuthorityView.setBundleId(withoutDepartmentUserAuthorityView.getBundleId());
+                    userAuthorityView.setAuthorityId(withoutDepartmentUserAuthorityView.getAuthorityId());
+                    withDepartmentUserAuthorityViews.add(userAuthorityView);
+                }
+            }
+        }
+        return withDepartmentUserAuthorityViews;
     }
 
     @Override

@@ -133,6 +133,7 @@ public class AuthorityService extends AbstractService implements AdjustAuthority
             result.put("errorMessage", "会话已过期");
         } else {
             UserView userView = session.getUserView();
+            result.put("userUuid", userView.getUuid());
             result.put("avatar", userView.getAvatar());
             result.put("name", userView.getName());
             result.put("departmentUuid", userView.getDepartmentUuid());
